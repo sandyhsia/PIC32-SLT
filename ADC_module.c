@@ -4,18 +4,21 @@
 #include <stdlib.h>
 // PBCLK=4MHz
 
-#define SAMPLE_NUM 6
+#define SAMPLE_NUM 16
 
 
 float Conv_RealVolt(int);
 uchar* number_to_char(float);
 void ADC_init();
 void get_sensors();
-
+void initUART();
 char ResultString[5]; //converted string's head
-int finger[SAMPLE_NUM];
+int finger[10];
+int acc[6];
 
 
+int receivedASCII;
+char ASCIIinStr[5];
 int main()
 {	
 	int ADCValue = 0;
@@ -24,6 +27,9 @@ int main()
 	OSCSetPBDIV (OSC_PB_DIV_1); //configure PBDIV so PBCLK = SYSCLK
 	MCU_init();
 	LCD_init();
+
+	//initUART();
+
 	LCD_goto(0x00);
 	LCD_puts("Volt is");
 
@@ -31,13 +37,12 @@ int main()
 	while(1)
 	{
 			get_sensors();
-	int i;
-	for( i=0;i<SAMPLE_NUM;i++)
-	{
+
+	
 		LCD_goto(0x40);
-		LCD_puts(number_to_char(Conv_RealVolt(finger[i])));
+		LCD_puts(number_to_char(Conv_RealVolt(finger[7])));
 		//DelayMsec(1000); //wait for 2 s
-	}
+	
 
 	}
 
@@ -56,9 +61,9 @@ void ADC_init()
 						// CLRASAM=1, automatically stop adc after 
 						// conversion sequence finish
 	AD1CON2 = 0x6400; // Vref+, Vref-, Scan mode
-	AD1CON2bits.SMPI=SAMPLE_NUM; // 5 sample sequences before interrupt
+	AD1CON2bits.SMPI=SAMPLE_NUM-1; // SAMPLE_NUM sample sequences before interrupt
 	AD1CON3 = 0x0002; 		// Manual Sample, Tad = internal 6 TPB = 6*0.25us = 1.5us
-	AD1CSSL= 0x001f; // select AN0-AN4, currently 5 values
+	AD1CSSL= 0xffff; // select AN0-AN15
 	
 
 	IPC6bits.AD1IP=5; // Set Priority to 5
@@ -74,16 +79,27 @@ void ADC_init()
 void ADC_ISR()
 {
 	IFS1CLR = 0x0002; // Ensure the interrupt flag is clear
+//left hand
 	finger[0]=ADC1BUF0;
 	finger[1]=ADC1BUF1;
 	finger[2]=ADC1BUF2;
 	finger[3]=ADC1BUF3;
 	finger[4]=ADC1BUF4;
-/*	finger[5]=ADC1BUF5;
-	finger[6]=ADC1BUF6;
-	finger[7]=ADC1BUF7;
-	finger[8]=ADC1BUF8;
-	finger[9]=ADC1BUF9;*/
+
+
+	acc[0]=ADC1BUF5;
+	acc[1]=ADC1BUF6;
+	acc[2]=ADC1BUF7;
+//right hand
+	acc[3]=ADC1BUF8;
+	acc[4]=ADC1BUF9; 
+	acc[5]=ADC1BUFA;
+
+	finger[5]=ADC1BUFB;
+	finger[6]=ADC1BUFC;
+	finger[7]=ADC1BUFD;
+	finger[8]=ADC1BUFE;
+	finger[9]=ADC1BUFF;
 
 
 }
@@ -98,9 +114,10 @@ void get_sensors()
 	T1CON=0;
 	for(i=0;i<SAMPLE_NUM;i++)
 	{
- 		TMR1 = 0; 
+		 		TMR1 = 0; 
 		T1CONSET = 0x8000; 
 		asm("NOP");
+
 		while(TMR1 < 800); 		// wait for 20Us => 500KHZ
 
 		AD1CON1CLR = 0x0002; 	// start Converting
@@ -142,4 +159,74 @@ unsigned char* number_to_char(float number)
 	}
 	ResultString[4]='\0';
 	return ResultString; 
+}
+
+void initUART(void) {
+
+	// start with transmission 
+	
+	//U1AMODE = 0x8008; //Enable UART for 8-bit data
+	U1AMODEbits.ON = 1;			// turn it on	
+
+	// Initialize UxBRG register for the appropriate baud rate 
+	U1AMODEbits.BRGH = 1;		//enable high speed mode
+
+	U1ABRG = 0x0340;				//832 (dec)
+	// 8 bit data bits,1 stop bits and parity 
+	// enable transmission *
+	U1AMODEbits.UEN = 0;			//UxTX and UxRX enabled and commanderred
+	U1ASTASET = 0x5400; //interrupt when all character sent, TX_EN and RX_EN are set
+			 // interrupt asserted when received buffer not empty
+	 
+
+	IPC6bits.U1AIP = 5;		// no idea why
+	IPC6bits.U1AIS = 1;
+	IFS0bits.U1ATXIF = 0;		// clear flag
+	IFS0bits.U1ARXIF = 0;		
+	IEC0bits.U1ATXIE = 1;		// then enable interrupt
+	IEC0bits.U1ARXIE = 1;
+	
+}
+
+
+/* UART1 TX/RX ISR */
+#pragma interrupt UART1_ISR ipl5 vector 24
+void UART1_ISR (void) {
+	IEC0bits.U1ATXIE = 0;		// then disable interrupt
+	// reenable in CN
+
+	// UART1 Transmitter U1TX ISR
+	if (IFS0bits.U1ATXIF == 1) {
+
+
+	//	LCD_goto(0x40);
+	//	LCD_puts("Complete");
+		IFS0bits.U1ATXIF = 0;
+
+	} 
+
+	if (IFS0bits.U1ARXIF == 1) {
+		
+
+		receivedASCII = U1ARXREG;
+		if(receivedASCII>0x1f&&receivedASCII<0x80)
+		{
+
+			ASCIIinStr[0] = receivedASCII;
+		
+			LCD_goto(0x0);
+			LCD_puts("Receiving..");
+			LCD_goto(0x40);
+			LCD_puts(ASCIIinStr);
+		}
+
+	int i;
+	for(i=0;i<SAMPLE_NUM;i++)
+	{
+		U1ATXREG = finger[i];
+	}
+	
+	IFS0bits.U1ARXIF = 0;
+
+	} 
 }
