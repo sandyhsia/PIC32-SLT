@@ -1,24 +1,12 @@
 #include <plib.h>
 #include "ADC_Display.h"
+#include "match.h"
+#include "sample.h"
 #include <stdio.h>
 #include <stdlib.h>
 // PBCLK=4MHz
 
-#define SAMPLE_NUM 16
 
-
-float Conv_RealVolt(int);
-uchar* number_to_char(float);
-void ADC_init();
-void get_sensors();
-void initUART();
-char ResultString[5]; //converted string's head
-int finger[10];
-int acc[6];
-
-
-int receivedASCII;
-char ASCIIinStr[5];
 int main()
 {	
 	int ADCValue = 0;
@@ -39,9 +27,18 @@ int main()
 			get_sensors();
 
 	
-		LCD_goto(0x40);
+		LCD_goto(0x00);
+		LCD_puts(number_to_char(Conv_RealVolt(finger[5])));
+		LCD_puts(number_to_char(Conv_RealVolt(finger[6])));
 		LCD_puts(number_to_char(Conv_RealVolt(finger[7])));
-		//DelayMsec(1000); //wait for 2 s
+		LCD_puts(number_to_char(Conv_RealVolt(finger[8])));
+		LCD_goto(0x40);
+		LCD_puts(number_to_char(Conv_RealVolt(finger[9])));
+		LCD_puts(number_to_char(Conv_RealVolt(acc[3])));
+		LCD_puts(number_to_char(Conv_RealVolt(acc[4])));
+		LCD_puts(number_to_char(Conv_RealVolt(acc[5])));
+
+		DelayMsec(1000); //wait for 1 s
 	
 
 	}
