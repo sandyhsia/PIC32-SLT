@@ -2,7 +2,10 @@
 * LCD.h
 * Header file for the LCD Driver
 ************************************************************************/
+#ifndef LCD_H_
+#define LCD_H_
 #include <p32xxxx.h>
+
 /* define macros for LCD instructions*/
 #define LCD_IDLE 0x33
 #define LCD_2_LINE_4_BITS 0x28
@@ -46,3 +49,4 @@ void DelayMsec(uchar num);
 void LCD_entry_right(void);
 void LCD_CLR_SCN(void);
 /*****************end of LCD.h**********************/
+#endif
