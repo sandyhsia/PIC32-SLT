@@ -18,7 +18,7 @@ match.h and match.c are added to the directory. It provides the function match()
 
 The gesture shall be of the size MAX_RIGHTHAND*MAX_LEFTHAND_MAX_ACC. These three macros are defined in match.h. 
 
-# Default gesture
+### Default gesture
 When the right hand matched, acc matched but left hand not matched, the function match() return a default gesture with the correct right hand and acc but with a default left hand gesture. It may be useful in the case that we don't care about the left hand gesture. This value is stored at every MAX_LEFTHAND slots of the gesture array. 
 
 Similarly it returns default gesture when the right hand matched but the other two don't match. The default values of this are stored in every MAX_LEFTHAND*MAX_ACC slots of the gesture array.
