@@ -1,46 +1,57 @@
-#include <plib.h>
+//#include <plib.h>
 #include "ADC_Display.h"
 #include "match.h"
 #include "sample.h"
 #include <stdio.h>
 #include <stdlib.h>
-// PBCLK=4MHz
 
+// PBCLK=4MHz
+// 1:256 timer prescale
+#pragma config FPBDIV = DIV_1
+#define CHECK_INTERVAL 0x1E83; // 7811 OCT for 500ms
+
+// Function Header
+void TMR_init(void);
+unsigned char* int_to_str(int);
+
+// Global Variables
+int currentIndex = 0;
+char recognizedString[3];
 
 int main()
 {	
 	int ADCValue = 0;
 	float RealVolt;
 	uchar* DisplayVoltChar;//avoid memory leak
-	OSCSetPBDIV (OSC_PB_DIV_1); //configure PBDIV so PBCLK = SYSCLK
+	//OSCSetPBDIV (OSC_PB_DIV_1); //configure PBDIV so PBCLK = SYSCLK
+    // commented out for OS incompatibility
 	MCU_init();
 	LCD_init();
-
 	//initUART();
 
 	LCD_goto(0x00);
-	LCD_puts("Volt is");
+	LCD_puts("Gesture: ");
 
  	ADC_init();
+ 	TMR_init();
+
 	while(1)
 	{
-			get_sensors();
-
+		get_sensors();
 	
-		LCD_goto(0x00);
-		LCD_puts(number_to_char(Conv_RealVolt(finger[5])));
-		LCD_puts(number_to_char(Conv_RealVolt(finger[6])));
-		LCD_puts(number_to_char(Conv_RealVolt(finger[7])));
-		LCD_puts(number_to_char(Conv_RealVolt(finger[8])));
-		LCD_goto(0x40);
-		LCD_puts(number_to_char(Conv_RealVolt(finger[9])));
-		LCD_puts(number_to_char(Conv_RealVolt(acc[3])));
-		LCD_puts(number_to_char(Conv_RealVolt(acc[4])));
-		LCD_puts(number_to_char(Conv_RealVolt(acc[5])));
+		// testing code. No longer needed.
+		// LCD_goto(0x00);
+		// LCD_puts(number_to_char(Conv_RealVolt(finger[5])));
+		// LCD_puts(number_to_char(Conv_RealVolt(finger[6])));
+		// LCD_puts(number_to_char(Conv_RealVolt(finger[7])));
+		// LCD_puts(number_to_char(Conv_RealVolt(finger[8])));
+		// LCD_goto(0x40);
+		// LCD_puts(number_to_char(Conv_RealVolt(finger[9])));
+		// LCD_puts(number_to_char(Conv_RealVolt(acc[3])));
+		// LCD_puts(number_to_char(Conv_RealVolt(acc[4])));
+		// LCD_puts(number_to_char(Conv_RealVolt(acc[5])));
 
-		DelayMsec(1000); //wait for 1 s
-	
-
+		// DelayMsec(1000); //wait for 1 s
 	}
 
 return 0;
@@ -101,6 +112,58 @@ void ADC_ISR()
 
 }
 
+void TMR_init() {
+    T4CON = 0x0;            // stop all 16/32-bit TIMER4 operation
+    T5CON = 0x0;            // stop all 16/32-bit TIMER5 operation
+    T4CONSET = 0x0078;      // enable 32-bit mode; prescaler 1:256; internal clock PBCLK
+    PR4 = CHECK_INTERVAL;   // max 4,294,967,295 cycles. Should be enough.
+    T4CONSET = 0x8000;      // start timer
+}
+
+// lower priority than ADC_ISR, 
+// as we need latestst sensor readings inside T3_ISR
+#pragma interrupt T5_ISR ipl6 vector 20
+void T5_ISR (void) {
+	T4CONCLR = 0x8000; //Stop 32-bit timer
+	IEC0bits.T5IE = 0; // disable interrupt
+
+	if(IFS0bits.T5IF) {
+		currentIndex = match();
+		if (currentIndex == -1) {
+			// reconition failed
+			LCD_goto(0x08);
+			LCD_puts("Undefined");
+			LCD_goto(0x40);
+			LCD_puts("Try Again..");
+		} else if (currentIndex == 0) {
+			// reconition failed
+			LCD_goto(0x08);
+			LCD_puts("Default");
+			LCD_goto(0x40);
+			LCD_puts("Pending Signal");
+		} else if (currentIndex > 0) {
+			// information gesture
+			U1ATXREG = currentIndex;
+			LCD_goto(0x08);
+			LCD_puts(int_to_str(currentIndex));
+			LCD_goto(0x40);
+			LCD_puts("Message Pending");
+			U1ATXREG = currentIndex;
+		} else if (currentIndex < -1) {
+			// command gesture
+			LCD_goto(0x08);
+			LCD_puts(int_to_str(currentIndex));
+			LCD_goto(0x40);
+			LCD_puts("Command Executed");
+		}
+	}
+
+	IFS0bits.T5IF = 0; // clear flag
+	IEC0bits.T5IE = 0; // enable interrupt
+	T4CONSET = 0x8000; // Re-start 32-bit timer
+}
+
+
 void get_sensors()
 {
 	int i;
@@ -111,7 +174,7 @@ void get_sensors()
 	T1CON=0;
 	for(i=0;i<SAMPLE_NUM;i++)
 	{
-		 		TMR1 = 0; 
+		TMR1 = 0; 
 		T1CONSET = 0x8000; 
 		asm("NOP");
 
@@ -158,6 +221,26 @@ unsigned char* number_to_char(float number)
 	return ResultString; 
 }
 
+unsigned char* int_to_str(int value) {
+	// supports -99 to 99 in value
+	if (value > 0) {
+		recognizedString[0] = '+';
+		recognizedString[1] = value % 10;
+		recognizedString[2] = value - value%10;
+	} else if (value == 0) {
+		recognizedString[0] = '0';
+		recognizedString[1] = '0';
+		recognizedString[2] = '0';
+	} else {
+		value = -value;
+		recognizedString[0] = '-';
+		recognizedString[1] = value % 10;
+		recognizedString[2] = value - value%10;
+	}
+
+	return recognizedString; 
+}
+
 void initUART(void) {
 
 	// start with transmission 
@@ -194,12 +277,9 @@ void UART1_ISR (void) {
 
 	// UART1 Transmitter U1TX ISR
 	if (IFS0bits.U1ATXIF == 1) {
-
-
-	//	LCD_goto(0x40);
-	//	LCD_puts("Complete");
+		LCD_goto(0x40);
+		LCD_puts("Message Sent");
 		IFS0bits.U1ATXIF = 0;
-
 	} 
 
 	if (IFS0bits.U1ARXIF == 1) {
@@ -208,7 +288,6 @@ void UART1_ISR (void) {
 		receivedASCII = U1ARXREG;
 		if(receivedASCII>0x1f&&receivedASCII<0x80)
 		{
-
 			ASCIIinStr[0] = receivedASCII;
 		
 			LCD_goto(0x0);
@@ -217,11 +296,11 @@ void UART1_ISR (void) {
 			LCD_puts(ASCIIinStr);
 		}
 
-	int i;
-	for(i=0;i<SAMPLE_NUM;i++)
-	{
-		U1ATXREG = finger[i];
-	}
+	// int i;
+	// for(i=0;i<SAMPLE_NUM;i++)
+	// {
+	// 	U1ATXREG = finger[i];
+	// }
 	
 	IFS0bits.U1ARXIF = 0;
 

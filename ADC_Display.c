@@ -2,7 +2,7 @@
 * LCD.c
 ************************************************************************/
 #include "ADC_Display.h"
-#include <plib.h>
+//#include <plib.h>
 /* main driver */
 static int count; // variable for timer2 to get out from the while loop
 
