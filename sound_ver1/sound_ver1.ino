@@ -12,11 +12,13 @@ int dreq = 7;
 int xDcs = 6;
 int DREQ = digitalRead(dreq);
 int fileIndex;
-char* fileList[]={"1.mp3","2.mp3"};
+char* fileList[]={"1.mp3","","","","","",
+                "2.mp3"};
 SoftwareSerial mySerial(2,3); // RX2 TX3;
 
 void setup() {
   Serial.begin(9600);
+  mySerial.begin(9600);
   pinMode(4,INPUT);
   pinMode(7,INPUT);
   pinMode(8,OUTPUT);
@@ -264,17 +266,17 @@ void loop() {
   //  delay(3000);
     // Sintest();
   //Serial.println("successful?");
-  if(Serial.available())
+  if(mySerial.available())
   {
    // play_file("1.mp3");
    //  Serial.println(0);
-    fileIndex = Serial.read();
-    Serial.write(fileIndex);
-    while(Serial.read() >= 0){}
-    if(play_file(fileList[fileIndex-48]))
+    fileIndex = mySerial.read();
+    Serial.write(fileIndex/6+48);
+    while(mySerial.read() >= 0){}
+    if(play_file(fileList[fileIndex]))
       mySerial.write(49); // successful ACK
     else
-      mySerial.write(48); // fail ACK
+      mySerial.write(48); // fail ACK*/
     
     //Serial.flush();
   }
