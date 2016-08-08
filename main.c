@@ -169,17 +169,19 @@ void T4_ISR (void) {
 				LCD_puts(int_to_str(currentIndex));
 				LCD_goto(0x40);
 				LCD_puts("Pending");
+
+				U1ATXREG =  currentIndex;
 				IEC0bits.U1ATXIE = 1;
-				U1ATXREG = (char) currentIndex;
 				IFS0bits.T5IF = 0;		// reset timeout
 			} else {
 				if (IFS0bits.T5IF != 0) {	// if timeout
 					LCD_goto(0x08);
 					LCD_puts(int_to_str(currentIndex));
 					LCD_goto(0x40);
-					IEC0bits.U1ATXIE = 1;
+
 					LCD_puts("Pending");
-					U1ATXREG = (char)currentIndex;
+					U1ATXREG = currentIndex;
+					IEC0bits.U1ATXIE = 1;
 					TMR5 = 0;
 					IFS0bits.T5IF = 0;		// reset timeout
 				}
