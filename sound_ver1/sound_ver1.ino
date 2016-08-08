@@ -1,4 +1,5 @@
 #include <SPI.h>
+#include <SoftwareSerial.h>
 #include <SD.h>
 #define DATAOUT 11//MOSI
 #define DATAIN  12//MISO
@@ -10,10 +11,13 @@ int xReset = 8;
 int dreq = 7;
 int xDcs = 6;
 int DREQ = digitalRead(dreq);
+int fileIndex;
+char* fileList[]={"1.mp3","2.mp3"};
+SoftwareSerial mySerial(2,3); // RX2 TX3;
 
 void setup() {
   Serial.begin(9600);
-    pinMode(4,INPUT);
+  pinMode(4,INPUT);
   pinMode(7,INPUT);
   pinMode(8,OUTPUT);
   pinMode(6,OUTPUT);
@@ -37,12 +41,12 @@ void setup() {
   Mp3Reset();
  
      
-      File dataFile = SD.open("PM.txt", FILE_READ);  //打开datalog.txt文件
+      File dataFile = SD.open(fileList[0], FILE_READ);  //打开datalog.txt文件
      
       if (dataFile) {
-        while (dataFile.available()) {  //检查是否dataFile是否有数据
-          Serial.write(dataFile.read());  //如果有数据则把数据发送到串口
-        }
+      // while (dataFile.available()) {  //检查是否dataFile是否有数据
+       //   Serial.write(dataFile.read());  //如果有数据则把数据发送到串口
+       // }
         dataFile.close();  //关闭dataFile
       }  
      
@@ -51,6 +55,7 @@ void setup() {
       } 
 
       // Serial.println( digitalRead(4));
+      
   
 }
 void wr_commad(unsigned char addr, unsigned char hdat, unsigned char ldat)
@@ -165,7 +170,7 @@ void Vs1003_DATA_Write(int8_t *data, int16_t len)
 int SD_setup()
 {
     digitalWrite(5,LOW);
-     Serial.print("Initializing SD card...");  //串口输出数据Initializing SD card...
+    Serial.print("Initializing SD card...");  //串口输出数据Initializing SD card...
      if (!SD.begin(chipSelect)) {  //如果从CS口与SD卡通信失败，串口输出信息Card failed, or not present
         Serial.println("Card failed, or not present");
         // don't do anything more:
@@ -175,11 +180,12 @@ int SD_setup()
      digitalWrite(5,HIGH);
      return 0;
 }
+
 int get_file_size(char* filename){
     File rfd;
     int buf_len = 0;
     if (!SD.exists(filename)) {
-        Serial.println("test.txt doesn't exist.");
+       // Serial.println("test.txt doesn't exist.");
         return buf_len;
     }
  
@@ -227,7 +233,7 @@ int play_file(char* filename){
     int rw_count = 0;
     int8_t data_buffer[DATA_BUFFER_LEN];
     if (!SD.exists(filename)) {
-        Serial.println("File to paly doesn't exist.");
+        Serial.println("File to play doesn't exist.");
         return 0;
     }
  
@@ -253,10 +259,24 @@ int play_file(char* filename){
 
 void loop() {
    //Mp3Reset();
-           Serial.println("yrzf.mp3");
-   play_file("yrzf.mp3");
- //  delay(3000);
-  // Sintest();
-   Serial.println("successful?");
+  //Serial.println("yrzf.mp3");
+  //play_file("yrzf.mp3");
+  //  delay(3000);
+    // Sintest();
+  //Serial.println("successful?");
+  if(Serial.available())
+  {
+   // play_file("1.mp3");
+   //  Serial.println(0);
+    fileIndex = Serial.read();
+    Serial.println(fileIndex);
+    while(Serial.read() >= 0){}
+    if(play_file(fileList[fileIndex-48]))
+      mySerial.write(49); // successful ACK
+    else
+      mySerial.write(48); // fail ACK
+    
+    //Serial.flush();
+  }
 
 }
