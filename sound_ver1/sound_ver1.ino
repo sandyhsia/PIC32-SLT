@@ -269,7 +269,7 @@ void loop() {
    // play_file("1.mp3");
    //  Serial.println(0);
     fileIndex = Serial.read();
-    Serial.println(fileIndex);
+    Serial.write(fileIndex);
     while(Serial.read() >= 0){}
     if(play_file(fileList[fileIndex-48]))
       mySerial.write(49); // successful ACK

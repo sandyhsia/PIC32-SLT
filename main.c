@@ -19,7 +19,7 @@ unsigned char* int_to_str(int);
 
 // Global Variables
 int prevIndex = -1;
-int currentIndex = -1;
+int currentIndex = -2;
 char recognizedString[5];
 
 int main()
@@ -31,14 +31,16 @@ int main()
     // commented out for OS incompatibility
 	MCU_init();
 	LCD_init();
-	//initUART();
+ 	TMR4_init();
+ 	TMR5_init();
+ 	ADC_init();
+	initUART();
 
 	LCD_goto(0x00);
 	LCD_puts("Gesture: ");
 
- 	ADC_init();
- 	TMR4_init();
- 	TMR5_init();
+
+
 
 	while(1)
 	{
@@ -122,6 +124,11 @@ void TMR4_init() {
     T4CONSET = 0x0070;      // enable 16-bit mode; prescaler 1:256; internal clock PBCLK
     PR4 = CHECK_INTERVAL;   // max 65536 cycles
     T4CONSET = 0x8000;      // start timer
+	IFS0bits.T4IF = 0; 
+	IEC0bits.T4IE = 1;
+	IPC4bits.T4IP = 6;
+	IPC4bits.T4IS = 0;
+	
 }
 
 void TMR5_init() {
@@ -129,6 +136,7 @@ void TMR5_init() {
     T5CONSET = 0x0070;      // enable 16-bit mode; prescaler 1:256; internal clock PBCLK
     PR5 = TIME_OUT;			// max 65536 cycles
     T5CONSET = 0x8000;      // start timer
+	IFS0bits.T5IF = 0;
 }
 
 // lower priority than ADC_ISR, 
@@ -148,28 +156,31 @@ void T4_ISR (void) {
 			LCD_puts("Undefined");
 			LCD_goto(0x40);
 			LCD_puts("Try Again..");
-		} else if (currentIndex == 0) {
+		} else if (currentIndex == -2) {
 			// reconition failed
 			LCD_goto(0x08);
 			LCD_puts("Default");
 			LCD_goto(0x40);
 			LCD_puts("Pending Signal");
-		} else if (currentIndex > 0) {
+		} else if (currentIndex >= 0) {
 			// information gesture
 			if (prevIndex != currentIndex) {
 				LCD_goto(0x08);
 				LCD_puts(int_to_str(currentIndex));
 				LCD_goto(0x40);
-				LCD_puts("Message Pending");
-				U1ATXREG = currentIndex;
+				LCD_puts("Pending");
+				IEC0bits.U1ATXIE = 1;
+				U1ATXREG = (char) currentIndex;
 				IFS0bits.T5IF = 0;		// reset timeout
 			} else {
 				if (IFS0bits.T5IF != 0) {	// if timeout
 					LCD_goto(0x08);
 					LCD_puts(int_to_str(currentIndex));
 					LCD_goto(0x40);
-					LCD_puts("Message Pending");
-					U1ATXREG = currentIndex;
+					IEC0bits.U1ATXIE = 1;
+					LCD_puts("Pending");
+					U1ATXREG = (char)currentIndex;
+					TMR5 = 0;
 					IFS0bits.T5IF = 0;		// reset timeout
 				}
 			}
@@ -249,20 +260,20 @@ unsigned char* int_to_str(int value) {
 	// supports -99 to 99 in value
 	if (value > 0) {
 		recognizedString[0] = '+';
-		recognizedString[1] = value % 10+48;
+		recognizedString[3] = value % 10+48;
 		recognizedString[2] = (value % 100)/10+48;
-		recognizedString[3] =  value/100 + 48;
+		recognizedString[1] =  value/100 + 48;
 	} else if (value == 0) {
 		recognizedString[0] = '0';
-		recognizedString[1] = '0';
-		recognizedString[2] = '0';
 		recognizedString[3] = '0';
+		recognizedString[2] = '0';
+		recognizedString[1] = '0';
 	} else {
 		value = -value;
 		recognizedString[0] = '-';
-		recognizedString[1] = value % 10+48;
+		recognizedString[3] = value % 10+48;
 		recognizedString[2] = (value % 100)/10+48;
-		recognizedString[3] =  value/100 + 48;
+		recognizedString[1] =  value/100 + 48;
 	}
 	recognizedString[4]='\0';
 	return recognizedString; 
@@ -300,7 +311,7 @@ void initUART(void) {
 #pragma interrupt UART1_ISR ipl5 vector 24
 void UART1_ISR (void) {
 	IEC0bits.U1ATXIE = 0;		// then disable interrupt
-	// reenable in CN
+
 
 	// UART1 Transmitter U1TX ISR
 	if (IFS0bits.U1ATXIF == 1) {
@@ -325,6 +336,7 @@ void UART1_ISR (void) {
 
 	
 	IFS0bits.U1ARXIF = 0;
-	IEC0bits.U1ATXIE = 1;
 	} 
+
+	//IEC0bits.U1ATXIE = 1;
 }
