@@ -5,6 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* I/O Assignment:
+ * RD0 & RD1 occupied by LCD
+ *
+ * Press SW3 (RD13 CN19) to change language
+ * Acknoledged by LED3 (RD2)
+ * if Engilsh, LED3 OFF, RC1 = 0;
+ * if CHinese, LED3 ON, RC1 = 1;
+*/
+
 // PBCLK=4MHz
 #pragma config FPBDIV = DIV_1
 // 1:256 timer prescale
@@ -16,11 +25,15 @@
 void TMR4_init(void);
 void TMR5_init(void);
 unsigned char* int_to_str(int);
+void initUART(void);
+void initChangeNotice(void);
 
 // Global Variables
 int prevIndex = -1;
 int currentIndex = -2;
 char recognizedString[5];
+int readCN19 = 0;
+int languageMode = 0; // 0 English, 1 Chinese
 
 int main()
 {	
@@ -35,6 +48,7 @@ int main()
  	TMR5_init();
  	ADC_init();
 	initUART();
+	initChangeNotice();
 
 	LCD_goto(0x00);
 	LCD_puts("Gesture: ");
@@ -44,7 +58,8 @@ int main()
 
 	while(1)
 	{
-		 get_sensors();
+		readCN19=PORTDbits.RD13;	// watch out for language switch
+		get_sensors();
 		
 		// testing code. No longer needed.
 		// LCD_goto(0x00);
@@ -308,6 +323,36 @@ void initUART(void) {
 	
 }
 
+/* Configure Change Notice */
+void initChangeNotice(void) {
+	/* Disable vector interrupts prior to configuration */
+	asm("di"); 				// Disable all interrupts 
+
+	/* Configure CN module */
+	TRISDbits.TRISD13 = 1;	// ensure SW3 (RD13 CN19) set to input
+	CNCONbits.ON = 1;		// enable CN module
+	CNEN = 0x00080000;		// enable CN19
+	CNPUE = 0x00080000;		// enable pullup for CN19
+
+	/* Read ports to set a reference on change notice pins */
+	readCN19 = PORTDbits.RD13;
+
+	/* Configure CN interrupt */
+	IPC6bits.CNIP = 1;		// priority level 1
+	IPC6bits.CNIS = 1;		// subpriority level 1
+	IFS1bits.CNIF = 0;		// clear flag
+	IEC1bits.CNIE = 1;		// enable CN interrupt
+
+	/* Re-enable all interrupt */
+	asm("ei");
+
+	/* set LED3 (RD2) and I/O RC1 to output */
+	TRISCbits.TRISC1 = 0;
+	TRISDbits.TRISD2 = 0;
+	PORTCbits.RC1 = 0;		// default to English
+	PORTDbits.RD2 = 0;
+}
+
 
 /* UART1 TX/RX ISR */
 #pragma interrupt UART1_ISR ipl5 vector 24
@@ -341,4 +386,44 @@ void UART1_ISR (void) {
 	} 
 
 	//IEC0bits.U1ATXIE = 1;
+}
+
+/* Change Notice ISR */
+/* CN ISR - handling SW input signal */
+#pragma interrupt CN_ISR ipl1 vector 26
+void CN_ISR (void) {
+	IEC1bits.CNIE = 0;		// disable CN interrupt
+
+	if (readCN19 > PORTDbits.RD13) { // once every push
+		if (languageMode == 0) {
+			// set to Chinese
+			languageMode = 1;
+			// LED3(RD2) ON
+			PORTDbits.RD2 = 1;
+			// set I/O for Arduino communication
+			PORTCbits.RC1 = 1;
+			// print to LCD
+			LCD_goto(0x0);
+			LCD_puts("language Mode:");
+			LCD_goto(0x40);
+			LCD_puts("Chinese");
+		} else {
+			// set to English
+			languageMode = 0;
+			// LED3(RD2) ON
+			PORTDbits.RD2 = 0;
+			// set I/O for Arduino communication
+			PORTCbits.RC1 = 0;
+			// print to LCD
+			LCD_goto(0x0);
+			LCD_puts("language Mode:");
+			LCD_goto(0x40);
+			LCD_puts("English");
+		}
+	}
+
+	readCN19 = PORTDbits.RD13;
+
+	IFS1bits.CNIF = 0;		// clear flag
+	IEC1bits.CNIE = 1;		// re-enable CN interrupt
 }
