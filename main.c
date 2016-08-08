@@ -14,9 +14,11 @@
 void TMR_init(void);
 unsigned char* int_to_str(int);
 
+
 // Global Variables
-int currentIndex = 0;
-char recognizedString[3];
+int prevIndex = -1;
+int currentIndex = -1;
+char recognizedString[5];
 
 int main()
 {	
@@ -37,8 +39,8 @@ int main()
 
 	while(1)
 	{
-		get_sensors();
-	
+		 get_sensors();
+		
 		// testing code. No longer needed.
 		// LCD_goto(0x00);
 		// LCD_puts(number_to_char(Conv_RealVolt(finger[5])));
@@ -128,7 +130,9 @@ void T5_ISR (void) {
 	IEC0bits.T5IE = 0; // disable interrupt
 
 	if(IFS0bits.T5IF) {
+		prevIndex = currentIndex;
 		currentIndex = match();
+
 		if (currentIndex == -1) {
 			// reconition failed
 			LCD_goto(0x08);
@@ -225,19 +229,22 @@ unsigned char* int_to_str(int value) {
 	// supports -99 to 99 in value
 	if (value > 0) {
 		recognizedString[0] = '+';
-		recognizedString[1] = value % 10;
-		recognizedString[2] = value - value%10;
+		recognizedString[1] = value % 10+48;
+		recognizedString[2] = (value % 100)/10+48;
+		recognizedString[3] =  value/100 + 48;
 	} else if (value == 0) {
 		recognizedString[0] = '0';
 		recognizedString[1] = '0';
 		recognizedString[2] = '0';
+		recognizedString[3] = '0';
 	} else {
 		value = -value;
 		recognizedString[0] = '-';
-		recognizedString[1] = value % 10;
-		recognizedString[2] = value - value%10;
+		recognizedString[1] = value % 10+48;
+		recognizedString[2] = (value % 100)/10+48;
+		recognizedString[3] =  value/100 + 48;
 	}
-
+	recognizedString[4]='\0';
 	return recognizedString; 
 }
 
@@ -251,7 +258,7 @@ void initUART(void) {
 	// Initialize UxBRG register for the appropriate baud rate 
 	U1AMODEbits.BRGH = 1;		//enable high speed mode
 
-	U1ABRG = 0x0340;				//832 (dec)
+	U1ABRG = 103;				//103 (dec)
 	// 8 bit data bits,1 stop bits and parity 
 	// enable transmission *
 	U1AMODEbits.UEN = 0;			//UxTX and UxRX enabled and commanderred
@@ -296,13 +303,8 @@ void UART1_ISR (void) {
 			LCD_puts(ASCIIinStr);
 		}
 
-	// int i;
-	// for(i=0;i<SAMPLE_NUM;i++)
-	// {
-	// 	U1ATXREG = finger[i];
-	// }
 	
 	IFS0bits.U1ARXIF = 0;
-
+	IEC0bits.U1ATXIE = 1;
 	} 
 }
