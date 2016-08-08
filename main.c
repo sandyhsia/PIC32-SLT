@@ -6,14 +6,16 @@
 #include <stdlib.h>
 
 // PBCLK=4MHz
-// 1:256 timer prescale
 #pragma config FPBDIV = DIV_1
-#define CHECK_INTERVAL 0x1E83; // 7811 OCT for 500ms
+// 1:256 timer prescale
+// note: max 65536 cycles
+#define CHECK_INTERVAL 0x1E83 // 7811 OCT for 500ms
+#define TIME_OUT 0x7A0F // 31247 OCT for 2s
 
 // Function Header
-void TMR_init(void);
+void TMR4_init(void);
+void TMR5_init(void);
 unsigned char* int_to_str(int);
-
 
 // Global Variables
 int prevIndex = -1;
@@ -35,7 +37,8 @@ int main()
 	LCD_puts("Gesture: ");
 
  	ADC_init();
- 	TMR_init();
+ 	TMR4_init();
+ 	TMR5_init();
 
 	while(1)
 	{
@@ -114,22 +117,28 @@ void ADC_ISR()
 
 }
 
-void TMR_init() {
+void TMR4_init() {
     T4CON = 0x0;            // stop all 16/32-bit TIMER4 operation
-    T5CON = 0x0;            // stop all 16/32-bit TIMER5 operation
-    T4CONSET = 0x0078;      // enable 32-bit mode; prescaler 1:256; internal clock PBCLK
-    PR4 = CHECK_INTERVAL;   // max 4,294,967,295 cycles. Should be enough.
+    T4CONSET = 0x0070;      // enable 16-bit mode; prescaler 1:256; internal clock PBCLK
+    PR4 = CHECK_INTERVAL;   // max 65536 cycles
     T4CONSET = 0x8000;      // start timer
+}
+
+void TMR5_init() {
+    T5CON = 0x0;            // stop all 16/32-bit TIMER5 operation
+    T5CONSET = 0x0070;      // enable 16-bit mode; prescaler 1:256; internal clock PBCLK
+    PR5 = TIME_OUT;			// max 65536 cycles
+    T5CONSET = 0x8000;      // start timer
 }
 
 // lower priority than ADC_ISR, 
 // as we need latestst sensor readings inside T3_ISR
-#pragma interrupt T5_ISR ipl6 vector 20
-void T5_ISR (void) {
+#pragma interrupt T4_ISR ipl6 vector 16
+void T4_ISR (void) {
 	T4CONCLR = 0x8000; //Stop 32-bit timer
-	IEC0bits.T5IE = 0; // disable interrupt
+	IEC0bits.T4IE = 0; // disable interrupt
 
-	if(IFS0bits.T5IF) {
+	if(IFS0bits.T4IF) {
 		prevIndex = currentIndex;
 		currentIndex = match();
 
@@ -147,12 +156,23 @@ void T5_ISR (void) {
 			LCD_puts("Pending Signal");
 		} else if (currentIndex > 0) {
 			// information gesture
-			U1ATXREG = currentIndex;
-			LCD_goto(0x08);
-			LCD_puts(int_to_str(currentIndex));
-			LCD_goto(0x40);
-			LCD_puts("Message Pending");
-			U1ATXREG = currentIndex;
+			if (prevIndex != currentIndex) {
+				LCD_goto(0x08);
+				LCD_puts(int_to_str(currentIndex));
+				LCD_goto(0x40);
+				LCD_puts("Message Pending");
+				U1ATXREG = currentIndex;
+				IFS0bits.T5IF = 0;		// reset timeout
+			} else {
+				if (IFS0bits.T5IF != 0) {	// if timeout
+					LCD_goto(0x08);
+					LCD_puts(int_to_str(currentIndex));
+					LCD_goto(0x40);
+					LCD_puts("Message Pending");
+					U1ATXREG = currentIndex;
+					IFS0bits.T5IF = 0;		// reset timeout
+				}
+			}
 		} else if (currentIndex < -1) {
 			// command gesture
 			LCD_goto(0x08);
@@ -162,9 +182,9 @@ void T5_ISR (void) {
 		}
 	}
 
-	IFS0bits.T5IF = 0; // clear flag
-	IEC0bits.T5IE = 0; // enable interrupt
-	T4CONSET = 0x8000; // Re-start 32-bit timer
+	IFS0bits.T4IF = 0; // clear flag
+	IEC0bits.T4IE = 1; // enable interrupt
+	T4CONSET = 0x8000; // Re-start 16-bit timer
 }
 
 
