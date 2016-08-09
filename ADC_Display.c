@@ -162,4 +162,9 @@ void ISR_T3(void)
 	count=0; // clear count bit
 	IFS0CLR=0x00001000;//clear timer interrupt flag
 }
+
+void LCD_CLR_SCN(void)
+{
+	LCD_putchar(LCD_CLR_DSP);
+}
 /*************end of LCD.c**************/
