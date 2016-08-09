@@ -2,6 +2,7 @@
 * LCD.c
 ************************************************************************/
 #include "ADC_Display.h"
+const char emptyString[]="                ";
 //#include <plib.h>
 /* main driver */
 static int count; // variable for timer2 to get out from the while loop
@@ -165,6 +166,10 @@ void ISR_T3(void)
 
 void LCD_CLR_SCN(void)
 {
-	LCD_putchar(LCD_CLR_DSP);
+	LCD_goto(0x00);
+	LCD_puts(emptyString);
+	LCD_goto(0x40);
+	LCD_puts(emptyString);
+	LCD_goto(0x00);
 }
 /*************end of LCD.c**************/
