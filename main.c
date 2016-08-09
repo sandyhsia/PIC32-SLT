@@ -50,8 +50,9 @@ int main()
 	initUART();
 	initChangeNotice();
 
+	// LCD_CLR_SCN();
 	LCD_goto(0x00);
-	LCD_puts("Gesture: ");
+	LCD_puts("Sign: ");
 
 
 
@@ -167,12 +168,14 @@ void T4_ISR (void) {
 
 		if (currentIndex == -1) {
 			// reconition failed
+			// LCD_CLR_SCN();
 			LCD_goto(0x08);
-			LCD_puts("Undefined");
+			LCD_puts("Unknown");
 			LCD_goto(0x40);
 			LCD_puts("Try Again..");
 		} else if (currentIndex == -2) {
 			// reconition failed
+			// LCD_CLR_SCN();
 			LCD_goto(0x08);
 			LCD_puts("Default");
 			LCD_goto(0x40);
@@ -180,8 +183,52 @@ void T4_ISR (void) {
 		} else if (currentIndex >= 0) {
 			// information gesture
 			if (prevIndex != currentIndex) {
+				// LCD_CLR_SCN();
 				LCD_goto(0x08);
-				LCD_puts(int_to_str(currentIndex));
+				switch (currentIndex) {
+					case 0:
+						LCD_puts("One (0)");
+						break;
+					case 2:
+						LCD_puts("You (+2)");
+						break;
+					case 6:
+						LCD_puts("Two (+6)");
+						break;
+					case 12:
+						LCD_puts("Three (+12)");
+						break;
+					case 18:
+						LCD_puts("Four (+18)");
+						break;
+					case 24:
+						LCD_puts("Five (+24)");
+						break;
+					case 26:
+						LCD_puts("NOT (+26)");
+						break;
+					case 30:
+						LCD_puts("Six (+30)");
+						break;
+					case 36:
+						LCD_puts("Seven (+36)");
+						break;
+					case 42:
+						LCD_puts("Eight (+42)");
+						break;
+					case 48:
+						LCD_puts("Nine (+48)");
+						break;
+					case 54:
+						LCD_puts("Good (+54)");
+						break;
+					case 56:
+						LCD_puts("Me (+56)");
+						break;
+					default:
+						LCD_puts("Undefined");
+				}
+				//LCD_puts(int_to_str(currentIndex));
 				LCD_goto(0x40);
 				LCD_puts("Pending");
 
@@ -190,8 +237,52 @@ void T4_ISR (void) {
 				IFS0bits.T5IF = 0;		// reset timeout
 			} else {
 				if (IFS0bits.T5IF != 0) {	// if timeout
+					// LCD_CLR_SCN();
 					LCD_goto(0x08);
-					LCD_puts(int_to_str(currentIndex));
+					switch (currentIndex) {
+					case 0:
+						LCD_puts("One (0)");
+						break;
+					case 2:
+						LCD_puts("You (+2)");
+						break;
+					case 6:
+						LCD_puts("Two (+6)");
+						break;
+					case 12:
+						LCD_puts("Three (+12)");
+						break;
+					case 18:
+						LCD_puts("Four (+18)");
+						break;
+					case 24:
+						LCD_puts("Five (+24)");
+						break;
+					case 26:
+						LCD_puts("NOT (+26)");
+						break;
+					case 30:
+						LCD_puts("Six (+30)");
+						break;
+					case 36:
+						LCD_puts("Seven (+36)");
+						break;
+					case 42:
+						LCD_puts("Eight (+42)");
+						break;
+					case 48:
+						LCD_puts("Nine (+48)");
+						break;
+					case 54:
+						LCD_puts("Good (+54)");
+						break;
+					case 56:
+						LCD_puts("Me (+56)");
+						break;
+					default:
+						LCD_puts("Undefined");
+				}
+					// LCD_puts(int_to_str(currentIndex));
 					LCD_goto(0x40);
 
 					LCD_puts("Pending");
@@ -203,6 +294,7 @@ void T4_ISR (void) {
 			}
 		} else if (currentIndex < -1) {
 			// command gesture
+			// LCD_CLR_SCN();
 			LCD_goto(0x08);
 			LCD_puts(int_to_str(currentIndex));
 			LCD_goto(0x40);
