@@ -51,8 +51,8 @@ int main()
 	initChangeNotice();
 
 	// LCD_CLR_SCN();
-	LCD_goto(0x00);
-	LCD_puts("Sign: ");
+	// LCD_goto(0x00);
+	// LCD_puts("Sign: ");
 
 
 
@@ -169,14 +169,14 @@ void T4_ISR (void) {
 		if (currentIndex == -1) {
 			// reconition failed
 			// LCD_CLR_SCN();
-			LCD_goto(0x08);
+			LCD_goto(0x00);
 			LCD_puts("Unknown");
 			LCD_goto(0x40);
 			LCD_puts("Try Again..");
 		} else if (currentIndex == -2) {
 			// reconition failed
 			// LCD_CLR_SCN();
-			LCD_goto(0x08);
+			LCD_goto(0x00);
 			LCD_puts("Default");
 			LCD_goto(0x40);
 			LCD_puts("Pending Signal");
@@ -184,7 +184,7 @@ void T4_ISR (void) {
 			// information gesture
 			if (prevIndex != currentIndex) {
 				// LCD_CLR_SCN();
-				LCD_goto(0x08);
+				LCD_goto(0x00);
 				switch (currentIndex) {
 					case 0:
 						LCD_puts("One (0)");
@@ -238,7 +238,7 @@ void T4_ISR (void) {
 			} else {
 				if (IFS0bits.T5IF != 0) {	// if timeout
 					// LCD_CLR_SCN();
-					LCD_goto(0x08);
+					LCD_goto(0x00);
 					switch (currentIndex) {
 					case 0:
 						LCD_puts("One (0)");
@@ -295,7 +295,7 @@ void T4_ISR (void) {
 		} else if (currentIndex < -1) {
 			// command gesture
 			// LCD_CLR_SCN();
-			LCD_goto(0x08);
+			LCD_goto(0x00);
 			LCD_puts(int_to_str(currentIndex));
 			LCD_goto(0x40);
 			LCD_puts("Command Executed");
