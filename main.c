@@ -50,9 +50,9 @@ int main()
 	initUART();
 	initChangeNotice();
 
-	LCD_CLR_SCN();
-	//LCD_goto(0x00);
-	//LCD_puts("Sign: ");
+	// LCD_CLR_SCN();
+	LCD_goto(0x00);
+	LCD_puts("Sign: ");
 
 
 
@@ -168,7 +168,7 @@ void T4_ISR (void) {
 
 		if (currentIndex == -1) {
 			// reconition failed
-			
+			// LCD_CLR_SCN();
 			LCD_goto(0x08);
 			LCD_puts("Unknown");
 			LCD_goto(0x40);
@@ -183,8 +183,8 @@ void T4_ISR (void) {
 		} else if (currentIndex >= 0) {
 			// information gesture
 			if (prevIndex != currentIndex) {
-				 LCD_CLR_SCN();
-				LCD_goto(0x00);
+				// LCD_CLR_SCN();
+				LCD_goto(0x08);
 				switch (currentIndex) {
 					case 0:
 						LCD_puts("One (0)");
@@ -237,8 +237,8 @@ void T4_ISR (void) {
 				IFS0bits.T5IF = 0;		// reset timeout
 			} else {
 				if (IFS0bits.T5IF != 0) {	// if timeout
-					LCD_CLR_SCN();
-					LCD_goto(0x00);
+					// LCD_CLR_SCN();
+					LCD_goto(0x08);
 					switch (currentIndex) {
 					case 0:
 						LCD_puts("One (0)");
@@ -294,7 +294,7 @@ void T4_ISR (void) {
 			}
 		} else if (currentIndex < -1) {
 			// command gesture
-			 LCD_CLR_SCN();
+			// LCD_CLR_SCN();
 			LCD_goto(0x08);
 			LCD_puts(int_to_str(currentIndex));
 			LCD_goto(0x40);
@@ -466,7 +466,7 @@ void UART1_ISR (void) {
 		if(receivedASCII>0x1f&&receivedASCII<0x80)
 		{
 			ASCIIinStr[0] = receivedASCII;
-			LCD_CLR_SCN();
+		
 			LCD_goto(0x0);
 			LCD_puts("Receiving..");
 			LCD_goto(0x40);
@@ -495,7 +495,6 @@ void CN_ISR (void) {
 			// set I/O for Arduino communication
 			PORTCbits.RC1 = 1;
 			// print to LCD
-			LCD_CLR_SCN();
 			LCD_goto(0x0);
 			LCD_puts("language Mode:");
 			LCD_goto(0x40);
@@ -508,7 +507,6 @@ void CN_ISR (void) {
 			// set I/O for Arduino communication
 			PORTCbits.RC1 = 0;
 			// print to LCD
-			LCD_CLR_SCN();
 			LCD_goto(0x0);
 			LCD_puts("language Mode:");
 			LCD_goto(0x40);

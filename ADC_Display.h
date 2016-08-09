@@ -48,6 +48,5 @@ void DelayUsec(uchar num);
 void DelayMsec(uchar num);
 void LCD_entry_right(void);
 void LCD_CLR_SCN(void);
-
 /*****************end of LCD.h**********************/
 #endif
