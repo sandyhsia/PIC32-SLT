@@ -1,4 +1,4 @@
-#include <plib.h>
+//#include <plib.h>
 #include "ADC_Display.h"
 #include "match.h"
 #include "sample.h"
@@ -170,14 +170,14 @@ void T4_ISR (void) {
 			// reconition failed
 			// LCD_CLR_SCN();
 			LCD_goto(0x00);
-			LCD_puts("Unknown");
+			LCD_puts("Unknown      ");
 			LCD_goto(0x40);
-			LCD_puts("Try Again..");
+			LCD_puts("Try Again..    ");
 		} else if (currentIndex == -2) {
 			// reconition failed
 			// LCD_CLR_SCN();
 			LCD_goto(0x00);
-			LCD_puts("Default");
+			LCD_puts("Default      ");
 			LCD_goto(0x40);
 			LCD_puts("Pending Signal");
 		} else if (currentIndex >= 0) {
@@ -187,87 +187,87 @@ void T4_ISR (void) {
 				LCD_goto(0x00);
 				switch (currentIndex) {
 					case 0:
-						LCD_puts("One (0)");
+						LCD_puts("One (0)      ");
 						break;
 					case 2:
-						LCD_puts("You (+2)");
+						LCD_puts("You (+2)  ");
 						break;
 					case 6:
-						LCD_puts("Two (+6)");
+						LCD_puts("Two (+6)  ");
 						break;
 					case 8: 
-						LCD_puts("Scissor (+8)");
+						LCD_puts("Scissor (+8)  ");
 						break;
 					case 12:
-						LCD_puts("Three (+12)");
+						LCD_puts("Three (+12)  ");
 						break;
 					
 					case 18:
-						LCD_puts("Four (+18)");
+						LCD_puts("Four (+18)  ");
 						break;
 					case 20: 
-						LCD_puts("Faceit (+20)");
+						LCD_puts("Faceit (+20)  ");
 						break;
 					case 22: 
-						LCD_puts("Love (+22)");
+						LCD_puts("Love (+22)  ");
 						break;
 					case 24:
-						LCD_puts("Five (+24)");
+						LCD_puts("Five (+24)  ");
 						break;
 					case 26:
-						LCD_puts("NOT (+26)");
+						LCD_puts("NOT (+26)  ");
 						break;
 					case 28: 
-						LCD_puts("Paper (+28)");
+						LCD_puts("Paper (+28)  ");
 						break;
 					case 30:
-						LCD_puts("Six (+30)");
+						LCD_puts("Six (+30)  ");
 						break;
 					case 32:
-						LCD_puts("Lamp (+32)");
+						LCD_puts("Lamp (+32)  ");
 						break;
 					case 36:
-						LCD_puts("Seven (+36)");
+						LCD_puts("Seven (+36)  ");
 						break;
 					case 42:
-						LCD_puts("Eight (+42)");
+						LCD_puts("Eight (+42)  ");
 						break;
 					case 44: 
-						LCD_puts("Smile (+44)");
+						LCD_puts("Smile (+44)  ");
 						break;
 					case 46: 
-						LCD_puts("Life (+46)");
+						LCD_puts("Life (+46)  ");
 						break;
 					case 48:
-						LCD_puts("Nine (+48)");
+						LCD_puts("Nine (+48)  ");
 						break;
 					case 50: 
-						LCD_puts("Done (+50)");
+						LCD_puts("Done (+50)  ");
 						break;
 					case 52: 
-						LCD_puts("Stone (+52)");
+						LCD_puts("Stone (+52)  ");
 						break;
 					case 54:
-						LCD_puts("Good (+54)");
+						LCD_puts("Good (+54)  ");
 						break;
 					case 56:
-						LCD_puts("Me (+56)");
+						LCD_puts("Me (+56)  ");
 						break;
 					case 60: 
-						LCD_puts("Done (+60)");
+						LCD_puts("Done (+60)  ");
 						break;
 					case 62: 
-						LCD_puts("Stone (+62)");
+						LCD_puts("Stone (+62)  ");
 						break;
 					case 66: 
-						LCD_puts("Hi (+66)");
+						LCD_puts("Hi (+66)  ");
 						break;
 					default:
 						LCD_puts("Undefined");
 				}
 				//LCD_puts(int_to_str(currentIndex));
 				LCD_goto(0x40);
-				LCD_puts("Pending");
+				LCD_puts("Pending    ");
 
 				U1ATXREG =  currentIndex;
 				IEC0bits.U1ATXIE = 1;
@@ -278,51 +278,51 @@ void T4_ISR (void) {
 					LCD_goto(0x00);
 					switch (currentIndex) {
 					case 0:
-						LCD_puts("One (0)");
+						LCD_puts("One (0)      ");
 						break;
 					case 2:
-						LCD_puts("You (+2)");
+						LCD_puts("You (+2)      ");
 						break;
 					case 6:
-						LCD_puts("Two (+6)");
+						LCD_puts("Two (+6)      ");
 						break;
 					case 12:
-						LCD_puts("Three (+12)");
+						LCD_puts("Three (+12)      ");
 						break;
 					case 18:
-						LCD_puts("Four (+18)");
+						LCD_puts("Four (+18)      ");
 						break;
 					case 24:
-						LCD_puts("Five (+24)");
+						LCD_puts("Five (+24)      ");
 						break;
 					case 26:
-						LCD_puts("NOT (+26)");
+						LCD_puts("NOT (+26)      ");
 						break;
 					case 30:
-						LCD_puts("Six (+30)");
+						LCD_puts("Six (+30)      ");
 						break;
 					case 36:
-						LCD_puts("Seven (+36)");
+						LCD_puts("Seven (+36)      ");
 						break;
 					case 42:
-						LCD_puts("Eight (+42)");
+						LCD_puts("Eight (+42)      ");
 						break;
 					case 48:
-						LCD_puts("Nine (+48)");
+						LCD_puts("Nine (+48)      ");
 						break;
 					case 54:
-						LCD_puts("Good (+54)");
+						LCD_puts("Good (+54)      ");
 						break;
 					case 56:
-						LCD_puts("Me (+56)");
+						LCD_puts("Me (+56)      ");
 						break;
 					default:
-						LCD_puts("Undefined");
+						LCD_puts("Undefined      ");
 				}
 					// LCD_puts(int_to_str(currentIndex));
 					LCD_goto(0x40);
 
-					LCD_puts("Pending");
+					LCD_puts("Pending    ");
 					U1ATXREG = currentIndex;
 					IEC0bits.U1ATXIE = 1;
 					TMR5 = 0;
@@ -492,7 +492,7 @@ void UART1_ISR (void) {
 	// UART1 Transmitter U1TX ISR
 	if (IFS0bits.U1ATXIF == 1) {
 		LCD_goto(0x40);
-		LCD_puts("Message Sent");
+		LCD_puts("Message Sent    ");
 		IFS0bits.U1ATXIF = 0;
 	} 
 
@@ -505,7 +505,7 @@ void UART1_ISR (void) {
 			ASCIIinStr[0] = receivedASCII;
 		
 			LCD_goto(0x0);
-			LCD_puts("Receiving..");
+			LCD_puts("Receiving..    ");
 			LCD_goto(0x40);
 			LCD_puts(ASCIIinStr);
 		}
@@ -535,7 +535,7 @@ void CN_ISR (void) {
 			LCD_goto(0x0);
 			LCD_puts("language Mode:");
 			LCD_goto(0x40);
-			LCD_puts("Chinese");
+			LCD_puts("Chinese      ");
 		} else {
 			// set to English
 			languageMode = 0;
@@ -547,7 +547,7 @@ void CN_ISR (void) {
 			LCD_goto(0x0);
 			LCD_puts("language Mode:");
 			LCD_goto(0x40);
-			LCD_puts("English");
+			LCD_puts("English      ");
 		}
 	}
 

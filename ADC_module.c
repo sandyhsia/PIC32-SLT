@@ -1,4 +1,4 @@
-#include <plib.h>
+//#include <plib.h>
 #include "ADC_Display.h"
 #include "match.h"
 #include "sample.h"
