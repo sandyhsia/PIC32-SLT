@@ -4,12 +4,14 @@ unsigned int gestureRight[MAX_RIGHTHAND*5]={
 	0x325, 0x25c, 0x238, 0x2d1, 0x2d1, 	//number 2
 	0x339, 0x259, 0x227, 0x279, 0x2ab, 	//number 3
 	0x341, 0x25a, 0x228, 0x267, 0x243, 	//number 4
-	0x2cd, 0x257, 0x226, 0x26a, 0x245,	//number 5
+	0x2a1, 0x257, 0x226, 0x26a, 0x245,	//number 5
 	0x2d9, 0x313, 0x299, 0x2d6, 0x267, 	//number 6
 	0x2bf, 0x2b2, 0x243, 0x29b, 0x293,	//number 7
 	0x2ca, 0x271, 0x2bb, 0x308, 0x2fd,	//number 8
 	0x353, 0x306, 0x2bf, 0x305, 0x2f0, 	//number 9
-	0x2ff,0x32e,0x2a9,0x2fe,0x2f4		// diao/good/thumb up
+	0x2ca,0x32e,0x2a9,0x2fe,0x2f4,		// diao/good/thumb up
+	0x33a,0x33e,0x2c5,0x31a,0x306,	// wan, finish
+	0x322,0x261,0x2b3,0x2c0,0x244	// high, hi
 	//0x2f3, 0x26e, 0x283, 0x2c7, 0x2ca,	//number 10
 	//0x2de,0x306,0x292,0x2eb,0x27a // yang rou
 };
@@ -21,7 +23,7 @@ unsigned int gestureAcc[MAX_RIGHTHAND*MAX_ACC*3]={
 	0, 0, 0,
 	
 	0, 0, 0,				//number 2
-	0, 0, 0,
+	0x1ff, 0x118, 0x080,	// jiandao scissor
 	0, 0, 0,
 
 	0, 0, 0,				//number 3
@@ -29,15 +31,15 @@ unsigned int gestureAcc[MAX_RIGHTHAND*MAX_ACC*3]={
 	0, 0, 0,
 
 	0, 0, 0,				//number 4
-	0, 0, 0,
-	0, 0, 0,
+	0x273, 0x1d2, 0x0e2, 	// miandui 
+	0x172, 0x130, 0x084,	// ai love
 
 	0, 0, 0,				//number 5
 	0x1d4, 0x1b6, 0x0d2,	// bu, no
-	0, 0, 0,
+	0x207, 0x1db, 0x0dd,	// bu, paper
 
 	0, 0, 0,				//number 6
-	0x239, 0x134, 0x1fe,
+	0x2de, 0x1ed, 0x0e8,
 	0, 0, 0,
 
 	0, 0, 0,				//number 7
@@ -45,17 +47,25 @@ unsigned int gestureAcc[MAX_RIGHTHAND*MAX_ACC*3]={
 	0, 0, 0,
 
 	0, 0, 0,				//number 8
-	0, 0, 0,
-	0, 0, 0,
+	0x22e, 0x11d, 0x08d,	// smile
+	0x1e6, 0x1b2, 0x0ca,	// shenghuo
 
 	0, 0, 0,				//number 9
-	0, 0, 0,
-	0, 0, 0,
+	0x226, 0x119, 0x07d, // wan finish
+	0x1fd, 0x1ca, 0x0de, // shitou rock
 
 	0x23f,0x127,0x1de, 		// diao
-	0x2c4,0x239,0x193,		// wo, me
-	0,0,0
+	0x2c4,0x1f2,0x0e0,		// wo, me
+	0,0,0,
 	
+	
+	0x226, 0x119, 0x07d, // wan finish
+	0x1fd, 0x1ca, 0x0de, // shitou rock
+	0, 0, 0,				
+
+	0, 0, 0, // high 
+	0, 0, 0, 
+	0, 0, 0				
 };
 //buffer[8]+buffer[9]+buffer[A]
 
@@ -98,7 +108,7 @@ unsigned int gestureLeft[MAX_LEFTHAND*MAX_RIGHTHAND*MAX_ACC*5]={
 	0, 0, 0, 0, 0,
 
 	0, 0, 0, 0, 0,						// number 6
-	0x25c,0x2fc,0x2c0,0x28a,0x165, 		// yang rou
+	0,0,0,0,0, 		// yang rou
 	0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0,
@@ -131,6 +141,21 @@ unsigned int gestureLeft[MAX_LEFTHAND*MAX_RIGHTHAND*MAX_ACC*5]={
 	0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0,
+
+	0,0,0,0,0,							// number 1
+	0,0,0,0,0,
+	0,0,0,0,0,
+	0,0,0,0,0,
+	0,0,0,0,0,
+	0,0,0,0,0,
+
+	0,0,0,0,0,							// number 1
+	0,0,0,0,0,
+	0,0,0,0,0,
+	0,0,0,0,0,
+	0,0,0,0,0,
+	0,0,0,0,0
+
 
 };
 //buffer[0]~bufer[4]

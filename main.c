@@ -1,4 +1,4 @@
-//#include <plib.h>
+#include <plib.h>
 #include "ADC_Display.h"
 #include "match.h"
 #include "sample.h"
@@ -195,11 +195,21 @@ void T4_ISR (void) {
 					case 6:
 						LCD_puts("Two (+6)");
 						break;
+					case 8: 
+						LCD_puts("Scissor (+8)");
+						break;
 					case 12:
 						LCD_puts("Three (+12)");
 						break;
+					
 					case 18:
 						LCD_puts("Four (+18)");
+						break;
+					case 20: 
+						LCD_puts("Faceit (+20)");
+						break;
+					case 22: 
+						LCD_puts("Love (+22)");
 						break;
 					case 24:
 						LCD_puts("Five (+24)");
@@ -207,8 +217,14 @@ void T4_ISR (void) {
 					case 26:
 						LCD_puts("NOT (+26)");
 						break;
+					case 28: 
+						LCD_puts("Paper (+28)");
+						break;
 					case 30:
 						LCD_puts("Six (+30)");
+						break;
+					case 32:
+						LCD_puts("Lamp (+32)");
 						break;
 					case 36:
 						LCD_puts("Seven (+36)");
@@ -216,14 +232,35 @@ void T4_ISR (void) {
 					case 42:
 						LCD_puts("Eight (+42)");
 						break;
+					case 44: 
+						LCD_puts("Smile (+44)");
+						break;
+					case 46: 
+						LCD_puts("Life (+46)");
+						break;
 					case 48:
 						LCD_puts("Nine (+48)");
+						break;
+					case 50: 
+						LCD_puts("Done (+50)");
+						break;
+					case 52: 
+						LCD_puts("Stone (+52)");
 						break;
 					case 54:
 						LCD_puts("Good (+54)");
 						break;
 					case 56:
 						LCD_puts("Me (+56)");
+						break;
+					case 60: 
+						LCD_puts("Done (+60)");
+						break;
+					case 62: 
+						LCD_puts("Stone (+62)");
+						break;
+					case 66: 
+						LCD_puts("Hi (+66)");
 						break;
 					default:
 						LCD_puts("Undefined");

@@ -12,8 +12,9 @@ int dreq = 7;
 int xDcs = 6;
 int DREQ = digitalRead(dreq);
 int fileIndex;
-char* fileList[]={"1.mp3","","","","","",
-                "2.mp3"};
+//int fileReadIndex;
+/*char* fileList[]={"1.mp3","","","","","",
+                "2.mp3"};*/
 SoftwareSerial mySerial(2,3); // RX2 TX3;
 
 void setup() {
@@ -43,21 +44,21 @@ void setup() {
   Mp3Reset();
  
      
-      File dataFile = SD.open(fileList[0], FILE_READ);  //打开datalog.txt文件
+     /*File dataFile = SD.open(fileList[0], FILE_READ);  //打开datalog.txt文件
      
       if (dataFile) {
       // while (dataFile.available()) {  //检查是否dataFile是否有数据
        //   Serial.write(dataFile.read());  //如果有数据则把数据发送到串口
        // }
         dataFile.close();  //关闭dataFile
-      }  
+      }
      
       else {
         Serial.println("error opening datalog.txt");  //如果文件无法打开串口发送信息error opening datalog.txt
       } 
 
       // Serial.println( digitalRead(4));
-      
+      */
   
 }
 void wr_commad(unsigned char addr, unsigned char hdat, unsigned char ldat)
@@ -264,19 +265,99 @@ void loop() {
   //Serial.println("yrzf.mp3");
   //play_file("yrzf.mp3");
   //  delay(3000);
-    // Sintest();
+  //   Sintest();
   //Serial.println("successful?");
+  
   if(mySerial.available())
   {
    // play_file("1.mp3");
    //  Serial.println(0);
     fileIndex = mySerial.read();
-    Serial.write(fileIndex/6+48);
+    Serial.println(fileIndex);
     while(mySerial.read() >= 0){}
-    if(play_file(fileList[fileIndex]))
+    if (fileIndex==0)
+     { play_file("1.mp3");}
+    if (fileIndex==2)
+{        play_file("ni.mp3");}
+        if (fileIndex==6)
+{      play_file("2.mp3");}
+    if (fileIndex==8)
+{        play_file("jiandao.mp3");}
+        if (fileIndex==12)
+{      play_file("3.mp3");}
+    if (fileIndex==18)
+{        play_file("4.mp3");}
+        if (fileIndex==20)
+{      play_file("miandui.mp3");}
+    if (fileIndex==22)
+{        play_file("ai.mp3");}
+        if (fileIndex==24)
+{      play_file("5.mp3");}
+    if (fileIndex==26)
+{        play_file("bu.mp3");}
+        if (fileIndex==28)
+{      play_file("bubu.mp3");}
+    if (fileIndex==30)
+{        play_file("6.mp3");}
+        if (fileIndex==32)
+{      play_file("yrzf.mp3");}
+    if (fileIndex==36)
+{        play_file("7.mp3");}
+        if (fileIndex==42)
+{      play_file("8.mp3");}
+   /* if (fileIndex==44)
+        play_file("weixiao.mp3");
+        if (fileIndex==46)
+      play_file("shenghuo.mp3");
+    if (fileIndex==48)
+        play_file("9.mp3");
+        if (fileIndex==50)
+      play_file("wan.mp3");
+    if (fileIndex==52)
+        play_file("shitou.mp3");
+        if (fileIndex==54)
+      play_file("diao.mp3");
+    if (fileIndex==60)
+        play_file("wan.mp3");
+        if (fileIndex==62)
+      play_file("shitou.mp3");
+    if (fileIndex==66)
+        play_file("high.mp3");*/
+   /* switch (fileIndex)
+  {
+    case 0: play_file("1.mp3"); Serial.println("test"); break;
+    case 2: play_file("ni.mp3"); break;
+    case 6: play_file("2.mp3"); break;
+    case 8: play_file("jiandao.mp3"); break;
+    case 12: play_file("3.mp3"); break;
+    case 18: play_file("4.mp3"); break;
+    case 20: play_file("miandui.mp3"); break;
+    case 22: play_file("ai.mp3"); break;
+    
+    case 24: play_file("5.mp3"); break;
+    case 26: play_file("bu.mp3"); break;
+    case 28: play_file("bubu.mp3"); break;
+    case 30: play_file("6.mp3"); break;
+    case 32: play_file("yrzf.mp3"); break;
+    case 36: play_file("7.mp3"); break;
+    case 42: play_file("8.mp3"); break;
+        case 44: play_file("weixiao.mp3"); break;
+            case 46: play_file("shenghuo.mp3"); break;
+    case 48: play_file("9.mp3"); break;
+        case 50: play_file("wan.mp3"); break;
+            case 52: play_file("shitou.mp3"); break;
+         
+    case 54: play_file("diao.mp3"); break;
+        case 56: play_file("wo.mp3"); break;
+                case 60: play_file("wan.mp3"); break;
+            case 62: play_file("shitou.mp3"); break;
+            case 66: play_file("high.mp3"); break;
+  }*/
+
       mySerial.write(49); // successful ACK
-    else
-      mySerial.write(48); // fail ACK*/
+  }
+    else{
+      mySerial.write(48); // fail ACK
     
     //Serial.flush();
   }

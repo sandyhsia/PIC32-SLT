@@ -3,12 +3,12 @@
 #include "ADC_Display.h"
 #include "sample.h"
 #include <stdio.h>
-#define MAX_RIGHTHAND 10
+#define MAX_RIGHTHAND 12
 #define MAX_ACC  3
 #define MAX_LEFTHAND 2
-#define RIGHT_THRESHOLD 40
-#define LEFT_THRESHOLD 40
-#define ACC_THRESHOLD 40
+#define RIGHT_THRESHOLD 50
+#define LEFT_THRESHOLD 50
+#define ACC_THRESHOLD 70
 //unsigned int gestureRight[MAX_RIGHTHAND*5];
 /*unsigned int gestureAcc[MAX_RIGHTHAND*MAX_ACC*3];
 unsigned int gestureLeft[MAX_LEFTHAND*MAX_RIGHTHAND*MAX_ACC*5];*/
