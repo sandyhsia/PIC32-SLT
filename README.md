@@ -12,6 +12,7 @@ We also have a report detailing the rationale behind the code available [here](h
 
 ## How to Make One for Myself?
 You’ll need hardware & software resources as follows:
+
 1. PIC32 Ethernet Starter Kit
 	- model [DM320004](http://www.microchip.com/Developmenttools/ProductDetails.aspx?PartNO=DM320004) from Microchip
 	- Starter kit datasheet available [here](https://undergrad.hxing.me/VE373/SLT/ethernet+starter+kit+datasheet.pdf?-source=github)
@@ -41,28 +42,28 @@ You’ll need hardware & software resources as follows:
 	- [datasheet available here](https://undergrad.hxing.me/VE373/SLT/lcd+datasheet.pdf?-source=github)
 	- connects to PIC32 Starter Kit through I/O Expansion with [these ports](https://undergrad.hxing.me/VE373/SLT/LCD+IO.pdf?-source=github)
 1. Voice Output
-1.1. Arduino UNO
-1.1.1. link to [product site](https://www.arduino.cc/en/Main/ArduinoBoardUno)
-1.1.1. receives an integer value through UART (*Universal Asynchronous Receiver / Transmitter*). This value corresponds to a MP3 file stored in a SD card. Arduino feeds that file to a MP3 decoder (VS1003) through SPI (*Serial Peripheral Interface*). 
-1.1.1. UART ports at 
-1.1.1.1. Receiver: port 2 
-1.1.1.1. Transmitter: port 3
-1.1. SD Card Reader with SPI ports
-1.1.1. holds the MP3 files
-1.1.1. bought it [from here](https://detail.tmall.com/item.htm?spm=a230r.1.14.70.4S5Syf&id=43580108042&ns=1&abbucket=5)
-1.1.1. and it looks like this
-![SD Reader](https://undergrad.hxing.me/VE373/SLT/SD.png?-source=github)
-1.1.1. connect ports to Arduino as specified in file `Arduino/voice.ino`
-1.1. VS1003 MP3 Decoder & DAC
-1.1.1. reads the MP3 file fed from Arduino (through SPI)
-1.1.1. decodes MP3 codec
-1.1.1. convert digital signal to analog signal
-1.1.1. output analog through a 3.5 mm stereo headphone jack
-1.1.1. link to [product site](http://www.vlsi.fi/en/products/vs1003.html)
-1.1.1. and [datasheet](https://undergrad.hxing.me/VE373/SLT/vs1003+datasheet.pdf?-source=github)
-1.1.2. and it looks like this
-![VS1003](https://undergrad.hxing.me/VE373/SLT/vs1003.png?-source=github)
-1.1.1. connect ports to Arduino as specified in file `Arduino/voice.ino`
+	- Arduino UNO
+		- link to [product site](https://www.arduino.cc/en/Main/ArduinoBoardUno)
+		- receives an integer value through UART (*Universal Asynchronous Receiver / Transmitter*). This value corresponds to a MP3 file stored in a SD card. Arduino feeds that file to a MP3 decoder (VS1003) through SPI (*Serial Peripheral Interface*). 
+		- UART ports at 
+			- Receiver: port 2 
+			- Transmitter: port 3
+	- SD Card Reader with SPI ports
+		- holds the MP3 files
+		- bought it [from here](https://detail.tmall.com/item.htm?spm=a230r.1.14.70.4S5Syf&id=43580108042&ns=1&abbucket=5)
+		- and it looks like this
+		- ![SD Reader](https://undergrad.hxing.me/VE373/SLT/SD.png?-source=github)
+		- connect ports to Arduino as specified in file `Arduino/voice.ino`
+	- VS1003 MP3 Decoder & DAC
+		- reads the MP3 file fed from Arduino (through SPI)
+		- decodes MP3 codec
+		- convert digital signal to analog signal
+		- output analog through a 3.5 mm stereo headphone jack
+		- link to [product site](http://www.vlsi.fi/en/products/vs1003.html)
+		- and [datasheet](https://undergrad.hxing.me/VE373/SLT/vs1003+datasheet.pdf?-source=github)
+		- and it looks like this
+		- ![VS1003](https://undergrad.hxing.me/VE373/SLT/vs1003.png?-source=github)
+		- connect ports to Arduino as specified in file `Arduino/voice.ino`
 
 ## Compilation
 Create a MPLAB project using files in folder `PIC32/`
