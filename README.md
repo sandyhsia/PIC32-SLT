@@ -1,27 +1,94 @@
-# VE373 Final Project
+# ![Sign Language Translator](https://undergrad.hxing.me/VE373/SLT/thumbnail.PNG?-source=github)
 
-## Timeline (China Standard Time)
-- Proposal Due: Jul 14, 2016 11:55 pm
-- Oral Presentation: Week 10 (Jul 18 - Jul 22). Details TBD.
-- EXPO Request Dealine: TBD
-- Demo: August 9, 2016 4-6pm
-- Report Due: August 11, 2016 10:00am
+## Design
+Hand gestures (all fingers on both hands with motion detection on one) are recognized into a pre-defined list of words. Results are displayed onto a LCD screen and (optionally) broadcasted from a 3.5 mm headphone jack.
 
-## What To Do
-No a clue
+![SLT Design Schematics](https://undergrad.hxing.me/VE373/SLT/design.png?-source=github)
 
-## Project Proposal
-iCloud file (editable) available [here](https://www.icloud.com/pages/0nvWnvRyGr6aDJrzHsiBj8M_Q#VE373_Proposal). Downlaod and edit. or do it online. 
+## Demo
+Gesture recognition (without voice broadcast) demo is [available on YouTube](https://youtu.be/YqCofvFmG_Q). 
 
-## Recent updates
-match.h and match.c are added to the directory. It provides the function match() to find the gesture in our predefined gesture array. It use the data of the global variable finger[] and acc[], and return an int. If the returning value is -1, it means there is no match. When the returning value is a positive index, it corresponds to the index of the gesture.
+We also have a report detailing the rationale behind the code available [here](https://undergrad.hxing.me/VE373/SLT/report.pdf?-source=github).
 
-The gesture shall be of the size MAX_RIGHTHAND*MAX_LEFTHAND_MAX_ACC. These three macros are defined in match.h. 
+## How to Make One for Myself?
+You’ll need hardware & software resources as follows:
+1. PIC32 Ethernet Starter Kit
+	- model [DM320004](http://www.microchip.com/Developmenttools/ProductDetails.aspx?PartNO=DM320004) from Microchip
+	- Starter kit datasheet available [here](https://undergrad.hxing.me/VE373/SLT/ethernet+starter+kit+datasheet.pdf?-source=github)
+	- datasheet for the chip (PIC32MX795F512L 32-bit micro-controller) is also [available](https://undergrad.hxing.me/VE373/SLT/pic32+datasheet.pdf?-source=github)
+	- super expensive BTW
+	- software IDE available [here](http://www.microchip.com/mplab/mplab-x-ide)
+1. I/O Expansion Board
+	- model [DM320002](http://www.microchip.com/DevelopmentTools/ProductDetails.aspx?PartNO=DM320002) from Microchip
+	- allows access to starter kit signals with jumper wires
+	- not full access though. See **Issues** section for details
+1. Angle Displacement Sensors (flex sensors)
+	- changes resistance when bent
+	- [datasheet available here](https://undergrad.hxing.me/VE373/SLT/flex+datasheet.pdf?-source=github)
+	- laddered with resistors to create analog voltage readings
+	- five right hand signals feed into PIC32 I/O AN11 to AN15
+	- five left hand signals feed into PIC32 I/O AN0 to AN4
+	- PIC32 AN ports correspond to I/O Expansion Boards PINs like [this](https://undergrad.hxing.me/VE373/SLT/AN+IO.png?-source=github)
+1. Accelerometer
+	- outputs x-y-z analog signals in stasis or motion
+	- [chip datasheet available here](https://undergrad.hxing.me/VE373/SLT/acc+bare+datasheet.pdf?-source=github)
+	- [package datasheet available here](https://undergrad.hxing.me/VE373/SLT/acc+packaged+datasheet.pdf?-source=github)
+	- X-Y-Z analog signals feed into PIC32 I/O AN8 to AN10, respectively. That translates to I/O PINs [like this](https://undergrad.hxing.me/VE373/SLT/AN+IO.png?-source=github).
+	- fitted on the back side of the glove
+		- ![glove fitted with flex and accelerometer looks like this:](https://undergrad.hxing.me/VE373/SLT/glove.png?-source=github)
+1. LCD Display
+	- displays a two-line message with 16 characters in each line
+	- [datasheet available here](https://undergrad.hxing.me/VE373/SLT/lcd+datasheet.pdf?-source=github)
+	- connects to PIC32 Starter Kit through I/O Expansion with [these ports](https://undergrad.hxing.me/VE373/SLT/LCD+IO.pdf?-source=github)
+1. Voice Output
+1.1. Arduino UNO
+1.1.1. link to [product site](https://www.arduino.cc/en/Main/ArduinoBoardUno)
+1.1.1. receives an integer value through UART (*Universal Asynchronous Receiver / Transmitter*). This value corresponds to a MP3 file stored in a SD card. Arduino feeds that file to a MP3 decoder (VS1003) through SPI (*Serial Peripheral Interface*). 
+1.1.1. UART ports at 
+1.1.1.1. Receiver: port 2 
+1.1.1.1. Transmitter: port 3
+1.1. SD Card Reader with SPI ports
+1.1.1. holds the MP3 files
+1.1.1. bought it [from here](https://detail.tmall.com/item.htm?spm=a230r.1.14.70.4S5Syf&id=43580108042&ns=1&abbucket=5)
+1.1.1. and it looks like this
+![SD Reader](https://undergrad.hxing.me/VE373/SLT/SD.png?-source=github)
+1.1.1. connect ports to Arduino as specified in file `Arduino/voice.ino`
+1.1. VS1003 MP3 Decoder & DAC
+1.1.1. reads the MP3 file fed from Arduino (through SPI)
+1.1.1. decodes MP3 codec
+1.1.1. convert digital signal to analog signal
+1.1.1. output analog through a 3.5 mm stereo headphone jack
+1.1.1. link to [product site](http://www.vlsi.fi/en/products/vs1003.html)
+1.1.1. and [datasheet](https://undergrad.hxing.me/VE373/SLT/vs1003+datasheet.pdf?-source=github)
+1.1.2. and it looks like this
+![VS1003](https://undergrad.hxing.me/VE373/SLT/vs1003.png?-source=github)
+1.1.1. connect ports to Arduino as specified in file `Arduino/voice.ino`
 
-### Default gesture
-When the right hand matched, acc matched but left hand not matched, the function match() return a default gesture with the correct right hand and acc but with a default left hand gesture. It may be useful in the case that we don't care about the left hand gesture. This value is stored at every MAX_LEFTHAND slots of the gesture array. 
+## Compilation
+Create a MPLAB project using files in folder `PIC32/`
+- with a MPLAB X IDE [available here](http://www.microchip.com/mplab/mplab-x-ide)
+- using a XC32 (v1.40) compiler
+- connect ethernet starter kit to computer and program it
 
-Similarly it returns default gesture when the right hand matched but the other two don't match. The default values of this are stored in every MAX_LEFTHAND*MAX_ACC slots of the gesture array.
+Open file `Arduino/voice.ino`
+- with Arduino IDE 1.6.11, [available here](https://www.arduino.cc/en/Main/Software)
 
-If you are confused with the description above, contact oxy.
+Connect hardware as mentioned in the previous section and you are good to go.
 
+## Issues
+1. As different batches of flex sensors could produce significantly different output, you might need to adjust default gesture values in file `PIC32/match.c`. Make a gesture with gloves on, check on ADC buffer values in MPLAB IDE and type in new values.
+2. Arduino turned out to have a lower computing capacity than expected. As such we weren’t able to program a voice file for every gesture defined. For a fully-functioning voice module, try a higher-end chip instead.
+3. And we didn’t include the MP3 files in here. Just put a short (1-2 seconds long) MP3 file in the SD card and it should work. Make sure to name it exactly as we did in `Arduino/voice.ino`
+
+## Unfinished Business  
+We were trying to implement a multi-language mode before the project got wrapped up. The idea was to press `SW3` on ethernet starter kit, and I/O port `RC1` would get a high or low signal. Feed that signal to Arduino and we will be able to play a different MP3 file accordingly. Record the other file in a different language and we will have multi-language functions. But limitations in Arduino’s computation capacity stopped this effort. Nevertheless the code on PIC32 stayed. 
+
+## Credits
+This project is completed with
+- Xinyue Ou (Neil). Reach him [through GitHub](https://github.com/Neil-2013).
+- Sandy Hsia. Reach her [through GitHub](https://github.com/sandyhsia).
+- H.XING. Reach me [through here](http://goo.gl/JyGpYW).
+
+Arduino sine test and SD card reading algorithms in file `Arduino/voice.ino` are adapted from Xiao Che’s code published [on her blog](http://goo.gl/4vHQEt). 
+
+The amazing sign language art in the pictures are from Dr. Bill's [ASL Finger-spelling and Hand-shape Art](http://goo.gl/76faOQ), with © belonging to  Lifeprint.com
